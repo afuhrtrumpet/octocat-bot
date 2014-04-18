@@ -1,0 +1,27 @@
+var config = {
+	channels: ["#osuosc"],
+	server: "irc.freenode.net",
+	botName: "BODIES_ON_FLOOR"
+};
+
+var irc = require("irc");
+
+var bot = new irc.Client(config.server, config.botName, {
+	channels: config.channels
+});
+
+bot.addListener("message", function(from, to, text, message) {
+	console.log("Message was " + text);
+	if (text == ".floor") {
+		var length = Math.floor((Math.random() * 150) + 1);
+		var message = "FL";
+		for (var i = 0; i < length; i++) {
+			message += "O";
+		}
+		for (var i = 0; i < length / 2; i++) {
+			message += "R";
+		}
+		message += "!";
+		bot.say(config.channels[0], message);
+	}
+});
