@@ -6,8 +6,9 @@ var config = {
 
 var irc = require("irc");
 var http = require("http");
+var request = require("request");
 
-var base_url = "http://api.github.com/search/repositories?q=
+var base_url = "https://api.github.com/search/repositories?q="
 
 var bot = new irc.Client(config.server, config.botName, {
 	channels: config.channels
@@ -17,19 +18,27 @@ bot.addListener("message", function(from, to, text, message) {
 	console.log("Message was " + text);
 	if (text.substring(0, 3) == ".gh") {
 		var repo = text.substring(4);
-		var url = base_url + urlencode(repo);
-		http.get(url, function(res) {
-			var body = '';
-
-			res.on('data', function(chunk) {
-				body += chunk;
-			}); 
-
-			res.on('end', function() {
-				var json = JSON.parse(body);
-				var message = json.items[1].html_url;
+		console.log(repo);
+		var url = base_url; 
+		url = url.concat(encodeURIComponent(repo));
+		console.log(url);
+		request({
+			url: url,
+			json: true,
+			headers: {
+				'User-Agent': 'Octocat-Bot by afuhrtrumpet'
+			}
+		}, function(error, response, body) {
+			if (!error && response.statusCode == 200) {
+				var json = body;
+				var message = json.items[0].html_url;
 				bot.say(config.channels[0], message);
-			});
-		}
+			}
+			else if (error) {
+				console.log(error);
+			} else {
+				console.log(response.statusCode);
+			}
+		});
 	}
 });
