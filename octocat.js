@@ -1,5 +1,5 @@
 var config = {
-	channels: ["#muhbottest"],
+	channels: ["#osuosc"],
 	server: "irc.freenode.net",
 	botName: "octocat"
 };
@@ -31,8 +31,12 @@ bot.addListener("message", function(from, to, text, message) {
 		}, function(error, response, body) {
 			if (!error && response.statusCode == 200) {
 				var json = body;
-				var message = json.items[0].html_url;
-				bot.say(config.channels[0], message);
+				if (json.items.length > 0) {
+					var message = json.items[0].html_url;
+					bot.say(config.channels[0], message);
+				} else {
+					bot.say(config.channels[0], "No repos found.");
+				}
 			}
 			else if (error) {
 				console.log(error);
